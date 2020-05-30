@@ -97,4 +97,62 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     setClock(".timer", deadline);
 
+
+    //logic to implement listeners on a modal window
+
+    const modalTrigger = document.querySelectorAll("[data-modal]"),
+        modal = document.querySelector(".modal"),
+        modalCloseBtn = document.querySelector("[data-close]");
+
+
+    modalTrigger.forEach(btn => {
+        btn.addEventListener("click", openModalLogic);
+    });
+
+
+    modalCloseBtn.addEventListener("click", () => {
+        modal.classList.add("hide");
+        modal.classList.remove("show");
+        document.body.style.overflow = "";
+    });
+
+
+    modal.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            modal.classList.add("hide");
+            modal.classList.remove("show");
+            document.body.style.overflow = "";
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.code === "Escape" && modal.classList.contains("show")) {
+            modal.classList.add("hide");
+            modal.classList.remove("show");
+            document.body.style.overflow = "";
+        }
+    });
+
+
+
+    // logic to implement popup modal window with timer and while reach the end of the page
+
+    function openModalLogic() {
+        modal.classList.add("show");
+        modal.classList.remove("hide");
+        document.body.style.overflow = "hidden";
+        clearInterval(modalTimerId);
+    }
+
+    const modalTimerId = setTimeout(openModalLogic, 5000);
+
+
+    function showModalByScroll() {
+        if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
+            openModalLogic();
+            window.removeEventListener("scroll", showModalByScroll);
+        }
+    }
+    window.addEventListener("scroll", showModalByScroll);
+
 });
