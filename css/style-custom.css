@@ -16,3 +16,8 @@
         opacity: 1;
     }
 }
+
+.spinner__formatting {
+    display: block;
+    margin: 0 auto; 
+}

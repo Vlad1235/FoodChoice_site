@@ -101,8 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
     //logic to implement listeners on a modal window
 
     const modalTrigger = document.querySelectorAll("[data-modal]"),
-        modal = document.querySelector(".modal"),
-        modalCloseBtn = document.querySelector("[data-close]");
+        modal = document.querySelector(".modal");
 
 
     modalTrigger.forEach(btn => {
@@ -110,15 +109,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    modalCloseBtn.addEventListener("click", () => {
-        modal.classList.add("hide");
-        modal.classList.remove("show");
-        document.body.style.overflow = "";
-    });
-
-
     modal.addEventListener("click", (event) => {
-        if (event.target === modal) {
+        if (event.target === modal || event.target.getAttribute("data-close")==="") {
             modal.classList.add("hide");
             modal.classList.remove("show");
             document.body.style.overflow = "";
@@ -227,5 +219,82 @@ document.addEventListener("DOMContentLoaded", () => {
         '.menu .container',
         'menu__item'
     ).render();
+
+
+    // Forms to send on backend in json format. (server.php file been considered a server). Notification forms also
+
+    const forms = document.querySelectorAll("form");
+
+    const messageStorage = {
+        loading: "img/form/spinner.svg",
+        success: "Успешно отправлен! Скоро свяжемся",
+        failure: "Что-то пошло не так("
+    };
+
+    forms.forEach(item => {
+        postData(item);
+    });
+
+    function postData(form) {
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            const statusMessage = document.createElement("img");
+            statusMessage.classList.add("spinner__formatting");
+            statusMessage.setAttribute("src", messageStorage.loading); 
+            form.insertAdjacentElement("afterend",statusMessage);
+
+            const qr = new XMLHttpRequest();
+            qr.open("POST", "server.php", true);
+            // qr.setRequestHeader("Content-type", "multipart/form-data");
+            qr.setRequestHeader("Content-type", "application/json");
+            const formData = new FormData(form);
+
+            const object = {};
+            formData.forEach(function(value, key){
+                object[key] = value;
+            });
+            const jsonFormatedData = JSON.stringify(object);
+            qr.send(jsonFormatedData);
+
+            qr.addEventListener("load", () => { 
+                if (qr.status === 200) {
+                    console.log(qr.response);
+                    showThanksModal(messageStorage.success); 
+                    form.reset();
+                    statusMessage.remove(); 
+
+                } else {
+                    showThanksModal(messageStorage.failure);
+                }
+            });
+        });
+    }
+
+
+    function showThanksModal(message){
+        const prevModalDialog = document.querySelector(".modal__dialog");
+        prevModalDialog.classList.add("hide"); 
+        openModalLogic();
+
+        const thanksModal = document.createElement("div");
+        thanksModal.classList.add("modal__dialog"); 
+        thanksModal.innerHTML = `
+        <div class="modal__content">
+            <div data-close class="modal__close">x</div>
+            <div class="modal__title">${message}</div>
+        </div>
+        `;
+        document.querySelector('.modal').append(thanksModal);
+        setTimeout(() => {
+            thanksModal.remove(); 
+            prevModalDialog.classList.add("show");
+            prevModalDialog.classList.remove("hide"); 
+            
+            modal.classList.add("hide"); 
+            modal.classList.remove("show"); 
+            document.body.style.overflow = ""; 
+        }, 4000);
+    }
 
 });
