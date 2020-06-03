@@ -244,10 +244,6 @@ document.addEventListener("DOMContentLoaded", () => {
             statusMessage.setAttribute("src", messageStorage.loading); 
             form.insertAdjacentElement("afterend",statusMessage);
 
-            const qr = new XMLHttpRequest();
-            qr.open("POST", "server.php", true);
-            // qr.setRequestHeader("Content-type", "multipart/form-data");
-            qr.setRequestHeader("Content-type", "application/json");
             const formData = new FormData(form);
 
             const object = {};
@@ -255,18 +251,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 object[key] = value;
             });
             const jsonFormatedData = JSON.stringify(object);
-            qr.send(jsonFormatedData);
 
-            qr.addEventListener("load", () => { 
-                if (qr.status === 200) {
-                    console.log(qr.response);
+            fetch("server.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                body: jsonFormatedData
+            })
+            .then(data => data.text())
+            .then(data => {
+                    console.log(data); 
                     showThanksModal(messageStorage.success); 
-                    form.reset();
-                    statusMessage.remove(); 
-
-                } else {
-                    showThanksModal(messageStorage.failure);
-                }
+                    statusMessage.remove();                 
+            }).catch(() => {
+                showThanksModal(messageStorage.failure);
+            }).finally(() => {
+                form.reset();
             });
         });
     }
