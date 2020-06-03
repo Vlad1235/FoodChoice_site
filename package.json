@@ -1,0 +1,22 @@
+{
+  "name": "foodsite",
+  "version": "1.0.0",
+  "description": "Learning to create website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vlad1235/FoodSite.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Vlad1235/FoodSite/issues"
+  },
+  "homepage": "https://github.com/Vlad1235/FoodSite#readme",
+  "devDependencies": {
+    "json-server": "^0.16.1"
+  }
+}
