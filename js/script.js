@@ -189,36 +189,51 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    const div = new MenuCard(
-        "img/tabs/vegy.jpg",
-        "vegy",
-        'Меню "Фитнес"',
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-        9,
-        '.menu .container',
-        'menu__item'
-    );
-    div.render();
+    const makeGetRequest = async (url) => {
+        const res = await fetch(url);
+            if(!res.ok){
+                throw new Error(`Could not fetch ${url}, status ${res.status}`);
+            }
+        return await res.json();
+    };
 
-    new MenuCard(
-        "img/tabs/elite.jpg",
-        "elite",
-        'Меню “Премиум”',
-        'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-        12,
-        '.menu .container',
-        'menu__item'
-    ).render();
+    makeGetRequest("http://localhost:3000/menu")
+        .then(data => {
+            data.forEach(({img, altimg, title, descr, price}) => {
+                new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+            });
+        });
 
-    new MenuCard(
-        "img/tabs/post.jpg",
-        "post",
-        'Меню "Постное"',
-        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-        10,
-        '.menu .container',
-        'menu__item'
-    ).render();
+    // const div = new MenuCard(
+    //     "img/tabs/vegy.jpg",
+    //     "vegy",
+    //     'Меню "Фитнес"',
+    //     'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
+    //     9,
+    //     '.menu .container',
+    //     'menu__item'
+    // );
+    // div.render();
+
+    // new MenuCard(
+    //     "img/tabs/elite.jpg",
+    //     "elite",
+    //     'Меню “Премиум”',
+    //     'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
+    //     12,
+    //     '.menu .container',
+    //     'menu__item'
+    // ).render();
+
+    // new MenuCard(
+    //     "img/tabs/post.jpg",
+    //     "post",
+    //     'Меню "Постное"',
+    //     'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
+    //     10,
+    //     '.menu .container',
+    //     'menu__item'
+    // ).render();
 
 
     // Forms to send on backend in json format. (server.php file been considered a server). Notification forms also
@@ -234,6 +249,17 @@ document.addEventListener("DOMContentLoaded", () => {
     forms.forEach(item => {
         postData(item);
     });
+
+    const makePostRequest = async (url, data) => {
+        const res = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type" : "application/json"
+            },
+            body: data
+        });
+        return await res.json();
+    };
 
     function postData(form) {
         form.addEventListener("submit", (event) => {
@@ -252,14 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             const jsonFormatedData = JSON.stringify(object);
 
-            fetch("server.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type" : "application/json"
-                },
-                body: jsonFormatedData
-            })
-            .then(data => data.text())
+            makePostRequest("http://localhost:3000/requests", jsonFormatedData)
             .then(data => {
                     console.log(data); 
                     showThanksModal(messageStorage.success); 
